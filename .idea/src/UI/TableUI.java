@@ -37,9 +37,9 @@ public class TableUI extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Window Size = 1485 x 800 *** (Do we have a better preferred window size?) ***
+        // Window Size = 1280 x 800 *** (Do we have a better preferred window size?) ***
         // Set stage.setMaximized to true near bottom of method if we want to open program maximized
-        Scene scene = new Scene(new Group(), 1485, 800);
+        Scene scene = new Scene(new Group(), 1280, 800);
         scene.getStylesheets().add(getClass().getResource("TableViewDesign.css").toExternalForm());
 
         // Program Title
@@ -90,7 +90,7 @@ public class TableUI extends Application {
 
         scene.setFill(Color.LIGHTGRAY);
         stage.setScene(scene);
-        stage.setMaximized(false); // Set to true = program opens maximized
+        stage.setMaximized(true); // Set to true = program opens maximized
         stage.show();
     }
 
@@ -162,7 +162,7 @@ public class TableUI extends Application {
         // The categories we'll be using
         Label[] labels = {
                 new Label("Liquor Stores in Neighbourhood:"),
-                new Label("Crime occurrences (within 180 days):"),
+                new Label("Crime occurrences (180 days):"),
                 new Label("Median assessed values:"),
                 new Label("Mean Assessed values:")
         };
@@ -242,6 +242,7 @@ public class TableUI extends Application {
         hbox.getChildren().addAll(left, right);
         hbox.prefWidthProperty().bind(scene.widthProperty());
         hbox.prefHeightProperty().bind(scene.heightProperty());
+
         // Makes it so both tables will grow to any window size
         HBox.setHgrow(left, Priority.ALWAYS);
         HBox.setHgrow(right, Priority.ALWAYS);
