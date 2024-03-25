@@ -8,23 +8,14 @@
     -fx-text-alignment: center;
 }
 
-.table-row-cell:filled:hover {
-    -fx-alignment: center;
-    -fx-text-alignment: center;
-}
-
 .table-row-cell:selected {
-    -fx-background-color: transparent;
-    -fx-text-fill: white;
-    -fx-alignment: center;
-    -fx-text-alignment: center;
+    -fx-background-color: grey;
 }
 
 .table-view .table-column {
     -fx-alignment: center;
     -fx-text-alignment: center;
 }
-
 
 .table-view {
 	-fx-border-color: black;
@@ -33,7 +24,7 @@
 }
 
 .grid-pane .label {
-    -fx-font-size: 22px;
+    -fx-font-size: 22;
 }
 
 .grid-pane {
@@ -48,6 +39,13 @@
 .value-cell {
     -fx-alignment: center-right;
 	-fx-padding: 5;
+}
+
+.bar-chart {
+    -fx-background-color: white;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-font-size: 16;
 }
 
 .root{

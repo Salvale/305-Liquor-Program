@@ -1,36 +1,43 @@
 package project.UI;
 
+import DataCollection.NeighborhoodData;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class TableUI extends Application {
     // *** Below is where we collect our data into a list to be used and displayed in the table (To Be Done) ***
-    // private final ObservableList<dataset> data = FXCollections.observableArrayList();
+    // These are just temp hardcoded values to see functionality of UI
+    private final ObservableList<NeighborhoodData> data = FXCollections.observableArrayList(
+        new NeighborhoodData("Greenwood", 15, 120, 250000.0, 275000.0),
+        new NeighborhoodData("Sunnydale", 10, 80, 300000.0, 320000.0),
+        new NeighborhoodData("Oakridge", 20, 200, 220000.0, 230000.0),
+        new NeighborhoodData("Maple Town", 8, 50, 280000.0, 290000.0),
+        new NeighborhoodData("Brookfield", 12, 110, 260000.0, 270000.0)
+    );
 
     // Left-hand side table
-    private final TableView TableL = new TableView();
+    private final TableView<NeighborhoodData> TableL = new TableView<>();
 
     // Right-hand side table
     private final GridPane GridPaneR = new GridPane();
+
+    BarChartCreator barChart = new BarChartCreator(data);
+
     // Below are the labels that are used in GridPaneR
     private final Label crimeDataValue = new Label("N/A");
     private final Label storesValue = new Label("N/A");
     private final Label medianValue = new Label("N/A");
     private final Label meanValue = new Label("N/A");
-
-    // hb contain neighbourhood search text box and search button
-    final HBox hb = new HBox();
 
     public static void main(String[] args) {
         launch(args);
@@ -44,44 +51,24 @@ public class TableUI extends Application {
         scene.getStylesheets().add(getClass().getResource("TableViewDesign.css").toExternalForm());
 
         // Program Title
-        stage.setTitle("TableUIPlaceholder");
-        ComboBox comboBox = createGridPaneR(GridPaneR);
+        stage.setTitle("Crime vs. Liquor Stores of Edmonton");
+
+        rowSelectionListener(TableL, barChart);
 
         createAllColumns(TableL);
 
         // Add values and columns to scene
-        // tableL.setItems(data);           *** No Values to add yet so useless for now ***
+        TableL.setItems(data);
 
-        // Search functionality that is placed above table
-        final TextField searchNeighbourhood = new TextField();
-        searchNeighbourhood.setPromptText("Search by Neighbourhood");
-        searchNeighbourhood.setPrefWidth(155);
-
-        final Button search = createSearchButton(searchNeighbourhood, TableL);
-        hb.getChildren().addAll(searchNeighbourhood, search);
-
-        /* *** Need to implement the methods that allow for data to be retrieved when neighbourhood row clicked ***
         // Add listener so that when neighbourhood is selected, it updates the labels in right-hand side of UI
-        TableL.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                // Get the data from the selected row
-                (insert name of data set here) selectedNeighborhoodData = TableL.getSelectionModel().getSelectedItem();
-
-                // Update labels in right-hand side with the data from the selected neighborhood
-                storesValue.setText(String.valueOf(selectedNeighborhoodData.getNumberOfStores()));
-                crimeDataValue.setText(String.valueOf(selectedNeighborhoodData.getCrimeData));
-                medianValue.setText(String.valueOf(selectedNeighborhoodData.getMedianValue));
-                meanValue.setText(String.valueOf(selectedNeighborhoodData.getMeanValue));
-            }
-        });
-         */
+        rowSelectionListener(TableL, barChart);
 
         // This creates the left-hand side of the UI (Table and Search Bar)
-        VBox vboxL = createLeftSideVBox(hb, TableL);
+        VBox vboxL = createLeftSideVBox();
 
         // This creates the right-hand side of the UI (Select Crime and Neighbourhood Statistics)
         // *** Should also place our bar-graph in here ***
-        VBox vboxR = createRightSideVBox(comboBox, GridPaneR);
+        VBox vboxR = createRightSideVBox();
 
         // This creates the whole UI
         HBox mainUI = createMainUIHBox(vboxL, vboxR, scene);
@@ -95,60 +82,52 @@ public class TableUI extends Application {
     }
 
     // Method that creates all columns
-    private void createAllColumns(TableView table) {
+    private void createAllColumns(TableView<NeighborhoodData> table) {
         // Create and add columns
-        List<TableColumn> columns = new ArrayList<>();
-        columns.add(createColumn("Neighbourhood", table));
-        columns.add(createColumn("Total Liquor Stores", table));
-        columns.add(createColumn("Total Crimes Committed", table));
-        columns.add(createColumn("Mean Property Value", table));
-        columns.add(createColumn("Median Property Value", table));
+        TableColumn<NeighborhoodData, String> neighbourhoodColumn =
+                createColumn("Neighbourhood", "neighborhood");
+        TableColumn<NeighborhoodData, Number> liquorStoresColumn =
+                createColumn("Total Liquor Stores", "numberOfStores");
+        TableColumn<NeighborhoodData, Number> crimesColumn =
+                createColumn("Total Crimes Committed", "crimeData");
+        TableColumn<NeighborhoodData, Number> meanValueColumn =
+                createColumn("Mean Property Value", "meanValue");
+        TableColumn<NeighborhoodData, Number> medianValueColumn =
+                createColumn("Median Property Value", "medianValue");
 
-        table.getColumns().addAll(columns);
+        table.getColumns().addAll(neighbourhoodColumn, liquorStoresColumn, crimesColumn, meanValueColumn, medianValueColumn);
+
         // This divides the columns up into equal sections based on size of inputted list
-        columns.forEach(column -> column.prefWidthProperty().bind(table.widthProperty().divide(columns.size())));
+        table.getColumns().forEach(column -> column.prefWidthProperty().bind(
+                table.widthProperty().divide(table.getColumns().size())
+        ));
     }
 
-    // Method to create a single table column
-    private TableColumn createColumn(String title, TableView table) {
-        TableColumn column = new TableColumn(title);
-        column.prefWidthProperty().bind(table.widthProperty().divide(table.getColumns().size() + 1));
-
-        // Allows users to click on column to sort values in that column
-        column.setSortable(true);
-
-        // Configure cell value factory *** Need a dataset in order to add values ***
-        // column.setCellValueFactory(...);
+    // Method to create a single table column (helper method to createAllColumns)
+    private <T> TableColumn<NeighborhoodData, T> createColumn(String title, String propertyName) {
+        TableColumn<NeighborhoodData, T> column = new TableColumn<>(title);
+        column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
         return column;
     }
 
-    // Method that adds a search button to UI and sets what action happens on press
-    private Button createSearchButton(TextField searchField, TableView<?> table) {
-        final Button searchButton = new Button("Search");
-        // Action is here, calls performSearch method
-        //searchButton.setOnAction(event -> performSearch(searchField.getText(), table));
-        return searchButton;
+    // Method that listens for mouse clicks within table and updates the right hand side if clicked
+    private void rowSelectionListener(TableView<NeighborhoodData> table, BarChartCreator barChart) {
+        table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                // set what our current neighbourhood is for the bar graph
+                barChart.setCurrentSelectedNeighborhood(newSelection);
+
+                // Update labels in right-hand side with the data from the selected neighborhood
+                storesValue.setText(String.valueOf(newSelection.getNumberOfStores()));
+                crimeDataValue.setText(String.valueOf(newSelection.getCrimeData()));
+                medianValue.setText(String.valueOf(newSelection.getMedianValue()));
+                meanValue.setText(String.valueOf(newSelection.getMeanValue()));
+            }
+        });
     }
-
-    /*
-    // *** In order for action to occur, need an active dataset to search ***
-    // *** Should add error checking in future as well, to ensure valid neighbourhood is entered ***
-    private void performSearch(String searchText, TableView<?> table) {
-        searchText = searchText.toLowerCase();
-
-        // Filtering data based on the searchText (need to change item.getNeighbourhood to relevant data)
-        // Also change "data" to relevant TableView type
-        ObservableList<?> filteredData = data.stream()
-                .filter(item -> item.getNeighbourhood().toLowerCase().contains(searchText))
-                .collect(Collectors.toCollection(FXCollections::observableArrayList));
-
-        // Update the table items with only entered neighbourhood
-        table.setItems(filteredData);
-    }
-     */
 
     // Method that creates the right-hand side of the UI
-    private ComboBox createGridPaneR(GridPane gridpane) {
+    private ComboBox<String> createGridPaneR(GridPane gridpane) {
         gridpane.getStyleClass().add("grid-pane");
         ColumnConstraints labelColumn = new ColumnConstraints();
         // Give the label column 50% of the grid width
@@ -208,22 +187,43 @@ public class TableUI extends Application {
     }
 
     // Method to create the left-hand side of the UI
-    private VBox createLeftSideVBox(HBox hbox, TableView table) {
+    private VBox createLeftSideVBox() {
+        // Search functionality that is placed above table
+        TextField searchNeighbourhood = new TextField();
+        searchNeighbourhood.setPromptText("Search by Neighbourhood");
+        searchNeighbourhood.setPrefWidth(155);
+
+        Button search = ButtonCreators.createSearchButton(searchNeighbourhood, TableL, data);
+        Button clear = ButtonCreators.createClearButton(searchNeighbourhood, TableL, data);
+        HBox hb = new HBox(5);
+        hb.getChildren().addAll(searchNeighbourhood, search, clear);
+
         VBox vbox = new VBox();
         vbox.setSpacing(5);
         vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(hbox, table);
+        vbox.getChildren().addAll(hb, TableL);
         // Makes it so table extends to bottom of window
-        VBox.setVgrow(table, Priority.ALWAYS);
+        VBox.setVgrow(TableL, Priority.ALWAYS);
         return vbox;
     }
 
     // Method to create the right-hand side of the UI
-    private VBox createRightSideVBox(ComboBox combobox, GridPane gridpane) {
+    private VBox createRightSideVBox() {
+        ComboBox<String> combobox = createGridPaneR(GridPaneR);
+
+        HBox buttonBox = new HBox(10); // HBox to hold buttons
+        buttonBox.setAlignment(Pos.CENTER);
+        String[] categories = {"Liquor Stores", "Crime Data", "Median Value", "Mean Value"};
+        for (String category : categories) {
+            Button button = barChart.createButtonForCategory(category);
+            buttonBox.getChildren().add(button);
+        }
+
         VBox vbox = new VBox();
         vbox.setSpacing(5);
         vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(combobox, gridpane);
+        vbox.getChildren().addAll(combobox, GridPaneR, buttonBox, barChart.getBarChart());
+        VBox.setVgrow(barChart.getBarChart(), Priority.ALWAYS);
         return vbox;
     }
 
@@ -253,4 +253,5 @@ public class TableUI extends Application {
     private int searchCrimeData(String crimeType) {
         return 0;
     }
+
 }

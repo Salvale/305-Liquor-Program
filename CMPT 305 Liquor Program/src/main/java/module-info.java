@@ -6,4 +6,6 @@ module project.cmpt305liquorprogram {
 
     opens project.UI to javafx.fxml;
     exports project.UI;
+    exports DataCollection;
+    opens DataCollection to javafx.fxml;
 }
