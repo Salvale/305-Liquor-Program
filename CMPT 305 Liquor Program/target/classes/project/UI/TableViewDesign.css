@@ -9,7 +9,7 @@
 }
 
 .table-row-cell:selected {
-    -fx-background-color: grey;
+    -fx-background-color: #a1a0a0;
 }
 
 .table-view .table-column {
@@ -17,10 +17,24 @@
     -fx-text-alignment: center;
 }
 
+.table-view .table-cell {
+    -fx-font-size: 14;
+}
+
 .table-view {
 	-fx-border-color: black;
 	-fx-border-width: 1;
     -fx-fixed-cell-size: 50;
+}
+
+.left-label-style {
+    -fx-font-size: 22;
+    -fx-max-width: Infinity;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-background-color: #e5e5e5;
+    -fx-border-width: 0.3;
+    -fx-border-color: black;
 }
 
 .grid-pane .label {
@@ -46,6 +60,14 @@
     -fx-border-color: black;
     -fx-border-width: 1;
     -fx-font-size: 16;
+}
+
+.axis-label {
+    -fx-font-size: 22;
+}
+
+.chart-vertical-grid-lines {
+    -fx-stroke: transparent;
 }
 
 .root{

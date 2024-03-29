@@ -14,10 +14,20 @@ public class ButtonCreators {
 
         public static Button createSearchButton(TextField searchField, TableView<NeighborhoodData> table, ObservableList<NeighborhoodData> data) {
             Button searchButton = new Button("Search");
+            // if clicked, it will perform a search
             searchButton.setOnAction(event -> performSearch(searchField.getText(), table, data));
+
+            // if enter is pressed, it will search
             searchField.setOnKeyPressed(event -> {
                 if (event.getCode() == KeyCode.ENTER) {
                     performSearch(searchField.getText(), table, data);
+                }
+            });
+
+            // reset table data when search field is cleared
+            searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue.isEmpty()) {
+                    table.setItems(data); // Reset to the original data
                 }
             });
             return searchButton;

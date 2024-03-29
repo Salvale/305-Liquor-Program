@@ -1,18 +1,22 @@
 package project.UI;
 
-import DataCollection.NeighborhoodData;
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import javafx.collections.*;
+import javafx.geometry.*;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
+import DataCollection.NeighborhoodData;
+import java.text.NumberFormat;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class TableUI extends Application {
     // *** Below is where we collect our data into a list to be used and displayed in the table (To Be Done) ***
@@ -24,24 +28,16 @@ public class TableUI extends Application {
         new NeighborhoodData("Maple Town", 8, 50, 280000.0, 290000.0),
         new NeighborhoodData("Brookfield", 12, 110, 260000.0, 270000.0)
     );
-
     // Left-hand side table
     private final TableView<NeighborhoodData> TableL = new TableView<>();
-
     // Right-hand side table
     private final GridPane GridPaneR = new GridPane();
-
     BarChartCreator barChart = new BarChartCreator(data);
-
-    // Below are the labels that are used in GridPaneR
-    private final Label crimeDataValue = new Label("N/A");
-    private final Label storesValue = new Label("N/A");
-    private final Label medianValue = new Label("N/A");
-    private final Label meanValue = new Label("N/A");
-
+    private Map<String, DataLabel> dataLabels = new HashMap<>();
     public static void main(String[] args) {
         launch(args);
     }
+    NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.CANADA);
 
     @Override
     public void start(Stage stage) {
@@ -77,7 +73,7 @@ public class TableUI extends Application {
 
         scene.setFill(Color.LIGHTGRAY);
         stage.setScene(scene);
-        stage.setMaximized(false); // Set to true = program opens maximized
+        stage.setMaximized(true); // Set to true = program opens maximized
         stage.show();
     }
 
@@ -91,9 +87,9 @@ public class TableUI extends Application {
         TableColumn<NeighborhoodData, Number> crimesColumn =
                 createColumn("Total Crimes Committed", "crimeData");
         TableColumn<NeighborhoodData, Number> meanValueColumn =
-                createColumn("Mean Property Value", "meanValue");
+                createCurrencyColumn("Mean Property Value", "meanValue");
         TableColumn<NeighborhoodData, Number> medianValueColumn =
-                createColumn("Median Property Value", "medianValue");
+                createCurrencyColumn("Median Property Value", "medianValue");
 
         table.getColumns().addAll(neighbourhoodColumn, liquorStoresColumn, crimesColumn, meanValueColumn, medianValueColumn);
 
@@ -101,6 +97,27 @@ public class TableUI extends Application {
         table.getColumns().forEach(column -> column.prefWidthProperty().bind(
                 table.widthProperty().divide(table.getColumns().size())
         ));
+    }
+
+    // Method that creates a column in the table that has a formatted currency value within it
+    private TableColumn<NeighborhoodData, Number> createCurrencyColumn(String title, String propertyName) {
+        TableColumn<NeighborhoodData, Number> column = new TableColumn<>(title);
+        column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
+
+        column.setCellFactory(tc -> new TableCell<NeighborhoodData, Number>() {
+            @Override
+            protected void updateItem(Number value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty) {
+                    setText(null);
+                } else {
+                    // remove the zeroes after the decimal
+                    setText(currencyFormatter.format(value.doubleValue()).replaceAll("0*$", "").replaceAll("\\.$", ""));
+                }
+            }
+        });
+
+        return column;
     }
 
     // Method to create a single table column (helper method to createAllColumns)
@@ -118,46 +135,48 @@ public class TableUI extends Application {
                 barChart.setCurrentSelectedNeighborhood(newSelection);
 
                 // Update labels in right-hand side with the data from the selected neighborhood
-                storesValue.setText(String.valueOf(newSelection.getNumberOfStores()));
-                crimeDataValue.setText(String.valueOf(newSelection.getCrimeData()));
-                medianValue.setText(String.valueOf(newSelection.getMedianValue()));
-                meanValue.setText(String.valueOf(newSelection.getMeanValue()));
+                updateLabel("Stores", String.valueOf(newSelection.getNumberOfStores()));
+                updateLabel("CrimeData", String.valueOf(newSelection.getCrimeData()));
+                updateLabel("Median", String.valueOf(currencyFormatter.format(newSelection.getMedianValue()).replaceAll("0*$", "").replaceAll("\\.$", "")));
+                updateLabel("Mean", String.valueOf(currencyFormatter.format(newSelection.getMeanValue()).replaceAll("0*$", "").replaceAll("\\.$", "")));
             }
         });
     }
 
-    // Method that creates the right-hand side of the UI
-    private ComboBox<String> createGridPaneR(GridPane gridpane) {
+    // Method that creates the right-hand gridpane
+    private void createGridPaneR(GridPane gridpane) {
         gridpane.getStyleClass().add("grid-pane");
         ColumnConstraints labelColumn = new ColumnConstraints();
         // Give the label column 50% of the grid width
         labelColumn.setPercentWidth(70);
-
         ColumnConstraints valueColumn = new ColumnConstraints();
         // Give the value column 50% of the grid width
         valueColumn.setPercentWidth(30);
-
         gridpane.getColumnConstraints().addAll(labelColumn, valueColumn);
-        // The categories we'll be using
-        Label[] labels = {
-                new Label("Liquor Stores in Neighbourhood:"),
-                new Label("Crime occurrences (within 180 days):"),
-                new Label("Median assessed values:"),
-                new Label("Mean Assessed values:")
-        };
 
-        Label[] values = {storesValue, crimeDataValue, medianValue, meanValue};
+        dataLabels = new HashMap<>();
+        dataLabels.put("Stores", new DataLabel("Liquor Stores in Neighbourhood:", "Select a Neighbourhood"));
+        dataLabels.put("CrimeData", new DataLabel("Crime occurrences:", "Select a Neighbourhood"));
+        dataLabels.put("Median", new DataLabel("Median assessed values:", "Select a Neighbourhood"));
+        dataLabels.put("Mean", new DataLabel("Mean Assessed values:", "Select a Neighbourhood"));
 
-        for (int i = 0; i < labels.length; i++) {
-            labels[i].getStyleClass().add("label-cell");
-            gridpane.add(labels[i], 0, i); // Add label (i.e. list above) to first column
+        int row = 0;
+        for (DataLabel dataLabel : dataLabels.values()) {
+            dataLabel.getTitleLabel().getStyleClass().add("label-cell");
+            dataLabel.getValueLabel().getStyleClass().add("value-cell");
 
-            values[i].getStyleClass().add("value-cell");
-            gridpane.add(values[i], 1, i); // Add value  to second column
+            GridPane.setHalignment(dataLabel.getValueLabel(), HPos.RIGHT);
+
+            gridpane.add(dataLabel.getTitleLabel(), 0, row); // Add title label to first column
+            gridpane.add(dataLabel.getValueLabel(), 1, row); // Add value label to second column
+            row++;
         }
 
         gridpane.setGridLinesVisible(true);
+    }
 
+    // Method that creates the right hand side combo box
+    private ComboBox<String> createComboBox() {
         // Dataset for the ComboBox
         ObservableList<String> crimeTypes =
                 FXCollections.observableArrayList(
@@ -180,10 +199,17 @@ public class TableUI extends Application {
                 int crimeCount = searchCrimeData(selectedCrimeType);
 
                 // Update the crime data value label
-                crimeDataValue.setText(String.valueOf(crimeCount));
+                updateLabel("CrimeData", String.valueOf(crimeCount));
             }
         });
         return combobox;
+    }
+
+    // used in the createComboBox and createGridPaneR methods to update the labels within them
+    private void updateLabel(String key, String value) {
+        if (dataLabels.containsKey(key)) {
+            dataLabels.get(key).setValue(value);
+        }
     }
 
     // Method to create the left-hand side of the UI
@@ -193,15 +219,56 @@ public class TableUI extends Application {
         searchNeighbourhood.setPromptText("Search by Neighbourhood");
         searchNeighbourhood.setPrefWidth(155);
 
+        // collect all the neighbourhood names to be used below
+        ObservableList<String> neighborhoodNames = data.stream()
+                .map(NeighborhoodData::getNeighborhood)
+                .collect(Collectors.toCollection(FXCollections::observableArrayList));
+
+        // used to list the available neighborhoods as you are searching in the search box (top-left)
+        Popup suggestionsPopup = new Popup();
+        ListView<String> suggestionsView = new ListView<>();
+        suggestionsPopup.getContent().add(suggestionsView);
+
+        // displays the neighbourhood as you type
+        searchNeighbourhood.textProperty().addListener((observable, oldValue, newValue) -> {
+                    ObservableList<String> filteredItems = neighborhoodNames.filtered(item ->
+                            item.toLowerCase().startsWith(newValue.toLowerCase()));
+                    if (filteredItems.isEmpty() || newValue.isEmpty()) {
+                        suggestionsPopup.hide();
+                    } else {
+                        suggestionsView.setItems(filteredItems);
+                        suggestionsView.setPrefWidth(searchNeighbourhood.getWidth());
+                        Bounds boundsInScreen = searchNeighbourhood.localToScreen(searchNeighbourhood.getBoundsInLocal());
+                        suggestionsPopup.show(searchNeighbourhood, boundsInScreen.getMinX(), boundsInScreen.getMaxY());
+                    }
+        });
+
+        // handle mouse clicks on the suggestions list
+        suggestionsView.setOnMouseClicked(event -> {
+            if (!suggestionsView.getSelectionModel().isEmpty()) {
+                String selectedNeighborhood = suggestionsView.getSelectionModel().getSelectedItem();
+                searchNeighbourhood.setText(selectedNeighborhood);
+
+                // filter data to match the selected neighborhood
+                ObservableList<NeighborhoodData> filteredData = data.stream()
+                        .filter(item -> item.getNeighborhood().equalsIgnoreCase(selectedNeighborhood))
+                        .collect(Collectors.toCollection(FXCollections::observableArrayList));
+
+                TableL.setItems(filteredData);
+                suggestionsPopup.hide();
+            }
+        });
+
         Button search = ButtonCreators.createSearchButton(searchNeighbourhood, TableL, data);
         Button clear = ButtonCreators.createClearButton(searchNeighbourhood, TableL, data);
         HBox hb = new HBox(5);
         hb.getChildren().addAll(searchNeighbourhood, search, clear);
 
-        VBox vbox = new VBox();
-        vbox.setSpacing(5);
+        Label label = new Label("Neighbourhoods of Edmonton");
+        label.getStyleClass().add("left-label-style");
+        VBox vbox = new VBox(5);
         vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(hb, TableL);
+        vbox.getChildren().addAll(label, hb, TableL);
         // Makes it so table extends to bottom of window
         VBox.setVgrow(TableL, Priority.ALWAYS);
         return vbox;
@@ -209,20 +276,25 @@ public class TableUI extends Application {
 
     // Method to create the right-hand side of the UI
     private VBox createRightSideVBox() {
-        ComboBox<String> combobox = createGridPaneR(GridPaneR);
+        createGridPaneR(GridPaneR);
+        ComboBox<String> combobox = createComboBox();
 
         HBox buttonBox = new HBox(10); // HBox to hold buttons
         buttonBox.setAlignment(Pos.CENTER);
         String[] categories = {"Liquor Stores", "Crime Data", "Median Value", "Mean Value"};
         for (String category : categories) {
             Button button = barChart.createButtonForCategory(category);
+            HBox.setHgrow(button, Priority.ALWAYS);
+            button.setMaxWidth(Double.MAX_VALUE);
             buttonBox.getChildren().add(button);
         }
 
+        Label label = new Label("Neighbourhood Data");
+        label.getStyleClass().add("left-label-style");
         VBox vbox = new VBox();
         vbox.setSpacing(5);
         vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(combobox, GridPaneR, buttonBox, barChart.getBarChart());
+        vbox.getChildren().addAll(label, combobox, GridPaneR, buttonBox, barChart.getBarChart());
         VBox.setVgrow(barChart.getBarChart(), Priority.ALWAYS);
         return vbox;
     }
