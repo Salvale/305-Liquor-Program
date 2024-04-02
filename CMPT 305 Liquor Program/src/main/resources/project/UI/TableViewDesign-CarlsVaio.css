@@ -1,0 +1,53 @@
+.table-view .column-header,
+.table-view .column-header .filler,
+.table-view .column-header-background .filler {
+    -fx-background-color: -fx-base;
+    -fx-stroke: transparent;
+    -fx-size:50;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: grey;
+}
+
+.table-view .table-column {
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+.table-view {
+	-fx-border-color: black;
+	-fx-border-width: 1;
+    -fx-fixed-cell-size: 50;
+}
+
+.grid-pane .label {
+    -fx-font-size: 22;
+}
+
+.grid-pane {
+    -fx-background-color: white;
+}
+
+.label-cell {
+	-fx-alignment: center-left;
+    -fx-padding: 5;
+}
+
+.value-cell {
+    -fx-alignment: center-right;
+	-fx-padding: 5;
+}
+
+.bar-chart {
+    -fx-background-color: white;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-font-size: 16;
+}
+
+.root{
+    -fx-font-family: "Inter";
+}
