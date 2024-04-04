@@ -60,29 +60,11 @@ public class PropertyAssessment {
         return (this.hashCode() == other.hashCode());
     }
 
-    public boolean equalsAN(int anInt) {
-        return anInt == this.accountNum;
-    }
-
-    public boolean checkAllClasses(String cls) {
-        for (int i = 0; i < 3; i++) {
-            if (this.propertyClass.classAtI(i) != null && this.propertyClass.classAtI(i).equals(cls)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public float getX() {
         return this.location.getX();
     }
 
     public float getY() {
         return this.location.getY();
-    }
-
-    // @Override
-    public int compareTo(PropertyAssessment o) {
-        return this.value - o.value; // if 1 > 2, pos int. else neg int
     }
 }

@@ -213,13 +213,11 @@ public class TableUI extends Application {
         combobox.setOnAction(event -> {
             String selectedCrimeType = combobox.getValue();
 
-            if (!"Select Specific Crime".equals(selectedCrimeType)) {
-                // Search for the number of occurrences of the selected crime type
-                int crimeCount = searchCrimeData(selectedCrimeType);
+            // Search for the number of occurrences of the selected crime type or total crimes
+            int crimeCount = searchCrimeData(selectedCrimeType);
 
-                // Update the crime data value label
-                updateLabel("CrimeData", String.valueOf(crimeCount));
-            }
+            // Update the crime data value label
+            updateLabel("CrimeData", String.valueOf(crimeCount));
         });
         return combobox;
     }
@@ -350,8 +348,13 @@ public class TableUI extends Application {
                 .orElse(null);
 
         if (selectedPA != null) {
-            // Get the crime count for the specified type in the selected neighborhood
-            return selectedPA.crimeCountByTypeGroup(crimeType);
+            if ("Select Specific Crime".equals(crimeType)) {
+                // Return the total crime count for the neighborhood
+                return selectedPA.crimeCount();
+            } else {
+                // Get the crime count for the specified type in the selected neighborhood
+                return selectedPA.crimeCountByTypeGroup(crimeType);
+            }
         } else {
             return 0; // or handle this case as appropriate
         }

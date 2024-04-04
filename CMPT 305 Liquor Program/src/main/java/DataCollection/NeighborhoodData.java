@@ -1,6 +1,6 @@
 package DataCollection;
 
-// Possible Implementation for our NeighbourhoodData class?
+// Class that holds all the required data that is displayed in our table
 public class NeighborhoodData {
         private String neighborhood;
         private int numberOfStores;
@@ -16,45 +16,24 @@ public class NeighborhoodData {
         this.meanValue = meanValue;
     }
 
-    // Getters and Setters
     public String getNeighborhood() {
         return neighborhood;
-    }
-
-    public void setNeighborhood(String neighborhood) {
-        this.neighborhood = neighborhood;
     }
 
     public int getNumberOfStores() {
         return numberOfStores;
     }
 
-    public void setNumberOfStores(int numberOfStores) {
-        this.numberOfStores = numberOfStores;
-    }
-
     public int getCrimeData() {
         return crimeData;
-    }
-
-    public void setCrimeData(int crimeData) {
-        this.crimeData = crimeData;
     }
 
     public double getMedianValue() {
         return medianValue;
     }
 
-    public void setMedianValue(double medianValue) {
-        this.medianValue = medianValue;
-    }
-
     public double getMeanValue() {
         return meanValue;
-    }
-
-    public void setMeanValue(double meanValue) {
-        this.meanValue = meanValue;
     }
 
     public Number getValueByCategory(String category) {

@@ -23,17 +23,11 @@ public class Crime {
         return this.y;
     }
 
-    public String getGroup() {
-        return this.group;
-    }
 
     public String getTypeGroup() {
         return this.typeGroup;
     }
 
-    private float distBetween(float x1, float y1, float x2, float y2) {
-        return (float) Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
-    }
 
     public String nearestNeighbourhood(List<PropertyAssessment> assmts){
 
@@ -71,20 +65,6 @@ public class Crime {
         }
 
         return closestPoint.getNeighbourhood();
-
-/*
-        DataParsing.PropertyAssessment[][] pointsB = assmts.stream().toArray(DataParsing.PropertyAssessment[][]::new);
-
-        String nearest = assmts.get(0).getNeighbourhood();
-        float nearestDist = Float.MAX_VALUE;//this.distBetween(this.x,this.y,assmts.get(0).getX(),assmts.get(0).getY());
-        for (int i = 0; i < assmts.size(); i++) {
-            float aDist = 1.0f;//this.distBetween(this.x,this.y,a.getX(),a.getY());
-            if (aDist < nearestDist) {
-                nearestDist = aDist;
-                nearest = assmts.get(i).getNeighbourhood();
-            }
-        }
-        return nearest;*/
     }
 }
 

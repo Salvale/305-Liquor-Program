@@ -43,24 +43,6 @@ public class PropertyAssessments {
         }
     }
 
-    public PropertyAssessments getByAssessmentClass(String classSearch) { //don't use this function it wont work
-        System.out.println(this.data.get(1));
-        PropertyAssessments assmt = new PropertyAssessments();
-        ArrayList<PropertyAssessment> newData = new ArrayList<>();
-        for (int i = 0; i < this.n; i++) {
-            if (this.data.get(i).checkAllClasses(classSearch)) {
-                newData.add(this.data.get(i));
-                i++;
-            }
-        }
-        assmt.data = newData;
-        if (newData.size() == 0) {
-            return null;
-        }
-        assmt.analyzeData(newData, null, null);
-        return assmt;
-    }
-
     public List<PropertyAssessments> getAllNeighbourhoods() {
         List<PropertyAssessments> allHoods = new ArrayList<>();
         List<String> hoodsAsString = new ArrayList<>();
@@ -82,35 +64,26 @@ public class PropertyAssessments {
         for (int i = 0; i < this.n; i++) {
             if (this.data.get(i).getNeighbourhood().equals(neighbourhood)) {
                 newData.add(this.data.get(i));
-                //    i++;
             }
         }
 
         for (int i = 0; i < this.crimes.size(); i++) {
             if (this.crimes.get(i).nearestNeighbourhood(this.data).equals(neighbourhood)) {
                 newCrimes.add(this.crimes.get(i));
-                ///i++;
             }
         }
 
         for (int i = 0; i < this.stores.size(); i++) {
             if (this.stores.get(i).getNeighbourhood().equals(neighbourhood)) {
                 newAlc.add(this.stores.get(i));
-                //  i++;
             }
         }
 
-//        this.analyzeData(dataArray, storeArray, crimeArray);
         assmt.data = newData;
-        //       if (newData.size() == 0) {
-        //         System.out.println("Not Found!!!"); //move to main
-        //       return null;
-        //}
 
         assmt.analyzeData(newData, newAlc, newCrimes);
         return assmt;
     }
-
 
     public PropertyAssessments() {
     }
@@ -147,7 +120,6 @@ public class PropertyAssessments {
         String nei = line[6];
         String war = line[7];
         int val = Integer.parseInt(line[8]);
-        //int currentVal = Integer.parseInt(line[8]);
         float[] loc = {Float.parseFloat(line[9]), Float.parseFloat(line[10])};
         int[] clP = new int[3];
         for (int j = 0; j < 3; j++) {
@@ -166,12 +138,11 @@ public class PropertyAssessments {
     }
 
     private static String[][] readData(String csvFileName) throws IOException {
-        // Create a stream to read the CSV file
         BufferedReader reader = Files.newBufferedReader(Paths.get(csvFileName));
-        // Skip the header - this assumes the first line is a header
+        // Skip the header
         reader.readLine();
 
-        // Create 2D array to store all rows of data as String
+        // Create array to store all rows
         int initialSize = 100;
         String[][] data = new String[initialSize][];
 
@@ -179,10 +150,10 @@ public class PropertyAssessments {
         int index = 0;
         String line;
         while ((line = reader.readLine()) != null) {
-            // Split a line by comma works for simple CSV files
+            // Split line by comma
             String[] values = line.split(",");
 
-            // Check if the array is full
+            // Check if array is full
             if (index == data.length)
                 // Array is full, create and copy all values to a larger array
                 data = Arrays.copyOf(data, data.length * 2);
@@ -222,18 +193,13 @@ public class PropertyAssessments {
         }
     }
 
-    public String searchFor(int id) { // can return just an assessment
-        for (int i = 0; i < this.n; i++) {
-            if (this.data.get(i).equalsAN(id)) {
-                return data.get(i).toString();
-            }
-        }
-        return "ID not found!\n";
-    }
-
     public String toString() {
-        return ("Descriptive statistics of all property assessments\n" + "Neighbourhood: " + this.whichNeighbourhood() + "\nn = " + this.n + "\nmean: " + this.mean + "\nmedian:" + this.median + "\nDataParsing.Crime count: " + this.crimeCount() + "\nLiquor store count: " + this.storeCount());
-
+        return ("Descriptive statistics of all property assessments\n" +
+                "Neighbourhood: " + this.whichNeighbourhood() +
+                "\nn = " + this.n + "\nmean: " + this.mean +
+                "\nmedian:" + this.median +
+                "\nDataParsing.Crime count: " + this.crimeCount() +
+                "\nLiquor store count: " + this.storeCount());
     }
 
     public int storeCount() {
@@ -242,10 +208,6 @@ public class PropertyAssessments {
 
     public int crimeCount() {
         return this.crimes.size();
-    }
-
-    public int crimeCountByGroup(String group) {
-        return this.crimes.stream().filter(crime -> crime.getGroup().equals(group)).collect(Collectors.toList()).size();
     }
 
     public int crimeCountByTypeGroup(String typeGroup) {
