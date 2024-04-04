@@ -19,8 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class TableUI extends Application {
-    // *** Below is where we collect our data into a list to be used and displayed in the table (To Be Done) ***
-    // These are just temp hardcoded values to see functionality of UI
+    // Below is where we collect our data into a list to be used and displayed in the table
     private final ObservableList<NeighborhoodData> data = FXCollections.observableArrayList();
     // Left-hand side table
     private final TableView<NeighborhoodData> TableL = new TableView<>();
@@ -33,6 +32,8 @@ public class TableUI extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+    private List<PropertyAssessments> allNeighbourhoodData;
+    private String selectedNeighborhood;
 
     @Override
     public void start(Stage stage) {
@@ -46,8 +47,8 @@ public class TableUI extends Application {
         String criFile = "CMPT 305 Liquor Program/src/main/resources/project/UI/EPS_OCC_30DAY_-5791830293904934989.csv";
 
         PropertyAssessments edmonton = new PropertyAssessments(amtFile, liqFile, criFile);
-        List<PropertyAssessments> allNeighborhoodAssessments = edmonton.getAllNeighbourhoods();
-        initializeDataList(allNeighborhoodAssessments);
+        this.allNeighbourhoodData = edmonton.getAllNeighbourhoods();
+        initializeDataList(this.allNeighbourhoodData);
 
         // Program Title
         stage.setTitle("Crime vs. Liquor Stores of Edmonton");
@@ -66,7 +67,6 @@ public class TableUI extends Application {
         VBox vboxL = createLeftSideVBox();
 
         // This creates the right-hand side of the UI (Select Crime and Neighbourhood Statistics)
-        // *** Should also place our bar-graph in here ***
         VBox vboxR = createRightSideVBox();
 
         // This creates the whole UI
@@ -80,6 +80,7 @@ public class TableUI extends Application {
         stage.show();
     }
 
+    // Method that initializes all of our data to be used in the table
     public void initializeDataList(List<PropertyAssessments> allNeighborhoodAssessments) {
         for (PropertyAssessments pa : allNeighborhoodAssessments) {
             NeighborhoodData nd = pa.convertToNeighborhoodData();
@@ -143,10 +144,13 @@ public class TableUI extends Application {
             if (newSelection != null) {
                 // set what our current neighbourhood is for the bar graph
                 barChart.setCurrentSelectedNeighborhood(newSelection);
+                NeighborhoodData selectedData = TableL.getSelectionModel().getSelectedItem();
+                selectedNeighborhood = selectedData.getNeighborhood();
 
                 // Update labels in right-hand side with the data from the selected neighborhood
                 updateLabel("Stores", String.valueOf(newSelection.getNumberOfStores()));
                 updateLabel("CrimeData", String.valueOf(newSelection.getCrimeData()));
+                // Remove the decimal
                 updateLabel("Median", String.valueOf(currencyFormatter.format(newSelection.getMedianValue()).replaceAll("0*$", "").replaceAll("\\.$", "")));
                 updateLabel("Mean", String.valueOf(currencyFormatter.format(newSelection.getMeanValue()).replaceAll("0*$", "").replaceAll("\\.$", "")));
             }
@@ -191,10 +195,15 @@ public class TableUI extends Application {
         ObservableList<String> crimeTypes =
                 FXCollections.observableArrayList(
                         "Select Specific Crime", // Default value at the top
-                        "Theft",
-                        "Assault",
-                        "Burglary"
-                        // add our other crime types here, these are just placeholders
+                        "Theft Over $5000",
+                        "Theft Under $5000",
+                        "Break and Enter Commercial",
+                        "Robbery Commercial",
+                        "Mischief - Property",
+                        "Property Damage",
+                        "Intoxicated Person",
+                        "Impaired Driving",
+                        "Assault"
                 );
 
         ComboBox<String> combobox = new ComboBox<>(crimeTypes);
@@ -334,7 +343,18 @@ public class TableUI extends Application {
 
     // Method that will search our database for amount of specific crime occurrences within a neighbourhood
     private int searchCrimeData(String crimeType) {
-        return 0;
+        // Find the PropertyAssessments instance for the selected neighborhood
+        PropertyAssessments selectedPA = allNeighbourhoodData.stream()
+                .filter(pa -> pa.whichNeighbourhood().equals(selectedNeighborhood))
+                .findFirst()
+                .orElse(null);
+
+        if (selectedPA != null) {
+            // Get the crime count for the specified type in the selected neighborhood
+            return selectedPA.crimeCountByTypeGroup(crimeType);
+        } else {
+            return 0; // or handle this case as appropriate
+        }
     }
 
 }

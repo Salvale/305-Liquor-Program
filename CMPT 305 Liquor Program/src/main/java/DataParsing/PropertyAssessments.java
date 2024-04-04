@@ -249,7 +249,7 @@ public class PropertyAssessments {
     }
 
     public int crimeCountByTypeGroup(String typeGroup) {
-        return this.crimes.stream().filter(crime -> crime.getGroup().equals(typeGroup)).collect(Collectors.toList()).size();
+        return this.crimes.stream().filter(crime -> crime.getTypeGroup().equals(typeGroup)).collect(Collectors.toList()).size();
     }
 
     @Override
