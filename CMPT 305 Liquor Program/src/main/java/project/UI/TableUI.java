@@ -1,5 +1,6 @@
 package project.UI;
 
+import DataParsing.PropertyAssessments;
 import javafx.application.Application;
 import javafx.collections.*;
 import javafx.geometry.*;
@@ -12,32 +13,26 @@ import javafx.scene.paint.Color;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import DataCollection.NeighborhoodData;
+
 import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TableUI extends Application {
     // *** Below is where we collect our data into a list to be used and displayed in the table (To Be Done) ***
     // These are just temp hardcoded values to see functionality of UI
-    private final ObservableList<NeighborhoodData> data = FXCollections.observableArrayList(
-        new NeighborhoodData("Greenwood", 15, 120, 250000.0, 275000.0),
-        new NeighborhoodData("Sunnydale", 10, 80, 300000.0, 320000.0),
-        new NeighborhoodData("Oakridge", 20, 200, 220000.0, 230000.0),
-        new NeighborhoodData("Maple Town", 8, 50, 280000.0, 290000.0),
-        new NeighborhoodData("Brookfield", 12, 110, 260000.0, 270000.0)
-    );
+    private final ObservableList<NeighborhoodData> data = FXCollections.observableArrayList();
     // Left-hand side table
     private final TableView<NeighborhoodData> TableL = new TableView<>();
     // Right-hand side table
     private final GridPane GridPaneR = new GridPane();
     BarChartCreator barChart = new BarChartCreator(data);
     private Map<String, DataLabel> dataLabels = new HashMap<>();
+    NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.CANADA);
+
     public static void main(String[] args) {
         launch(args);
     }
-    NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.CANADA);
 
     @Override
     public void start(Stage stage) {
@@ -45,6 +40,14 @@ public class TableUI extends Application {
         // Set stage.setMaximized to true near bottom of method if we want to open program maximized
         Scene scene = new Scene(new Group(), 1280, 800);
         scene.getStylesheets().add(getClass().getResource("TableViewDesign.css").toExternalForm());
+
+        String amtFile = "CMPT 305 Liquor Program/src/main/resources/project/UI/Property_Assessment_Data_2024.csv";
+        String liqFile = "CMPT 305 Liquor Program/src/main/resources/project/UI/Alcohol_Sales_Licences_20240324.csv";
+        String criFile = "CMPT 305 Liquor Program/src/main/resources/project/UI/EPS_OCC_30DAY_-5791830293904934989.csv";
+
+        PropertyAssessments edmonton = new PropertyAssessments(amtFile, liqFile, criFile);
+        List<PropertyAssessments> allNeighborhoodAssessments = edmonton.getAllNeighbourhoods();
+        initializeDataList(allNeighborhoodAssessments);
 
         // Program Title
         stage.setTitle("Crime vs. Liquor Stores of Edmonton");
@@ -75,6 +78,13 @@ public class TableUI extends Application {
         stage.setScene(scene);
         stage.setMaximized(true); // Set to true = program opens maximized
         stage.show();
+    }
+
+    public void initializeDataList(List<PropertyAssessments> allNeighborhoodAssessments) {
+        for (PropertyAssessments pa : allNeighborhoodAssessments) {
+            NeighborhoodData nd = pa.convertToNeighborhoodData();
+            data.add(nd);
+        }
     }
 
     // Method that creates all columns
@@ -227,20 +237,21 @@ public class TableUI extends Application {
         // used to list the available neighborhoods as you are searching in the search box (top-left)
         Popup suggestionsPopup = new Popup();
         ListView<String> suggestionsView = new ListView<>();
+        suggestionsView.setPrefHeight(75);
         suggestionsPopup.getContent().add(suggestionsView);
 
         // displays the neighbourhood as you type
         searchNeighbourhood.textProperty().addListener((observable, oldValue, newValue) -> {
-                    ObservableList<String> filteredItems = neighborhoodNames.filtered(item ->
-                            item.toLowerCase().startsWith(newValue.toLowerCase()));
-                    if (filteredItems.isEmpty() || newValue.isEmpty()) {
-                        suggestionsPopup.hide();
-                    } else {
-                        suggestionsView.setItems(filteredItems);
-                        suggestionsView.setPrefWidth(searchNeighbourhood.getWidth());
-                        Bounds boundsInScreen = searchNeighbourhood.localToScreen(searchNeighbourhood.getBoundsInLocal());
-                        suggestionsPopup.show(searchNeighbourhood, boundsInScreen.getMinX(), boundsInScreen.getMaxY());
-                    }
+            ObservableList<String> filteredItems = neighborhoodNames.filtered(item ->
+                    item.toLowerCase().startsWith(newValue.toLowerCase()));
+            if (filteredItems.isEmpty() || newValue.isEmpty()) {
+                suggestionsPopup.hide();
+            } else {
+                suggestionsView.setItems(filteredItems);
+                suggestionsView.setPrefWidth(searchNeighbourhood.getWidth());
+                Bounds boundsInScreen = searchNeighbourhood.localToScreen(searchNeighbourhood.getBoundsInLocal());
+                suggestionsPopup.show(searchNeighbourhood, boundsInScreen.getMinX(), boundsInScreen.getMaxY());
+            }
         });
 
         // handle mouse clicks on the suggestions list

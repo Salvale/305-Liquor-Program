@@ -2,11 +2,11 @@ package DataCollection;
 
 // Possible Implementation for our NeighbourhoodData class?
 public class NeighborhoodData {
-    private String neighborhood;
-    private int numberOfStores;
-    private int crimeData;
-    private double medianValue;
-    private double meanValue;
+        private String neighborhood;
+        private int numberOfStores;
+        private int crimeData;
+        private double medianValue;
+        private double meanValue;
 
     public NeighborhoodData(String neighborhood, int numberOfStores, int crimeData, double medianValue, double meanValue) {
         this.neighborhood = neighborhood;

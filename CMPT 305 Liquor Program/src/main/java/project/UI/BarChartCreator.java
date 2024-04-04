@@ -84,15 +84,15 @@ public class BarChartCreator {
         Platform.runLater(() -> {
             for (XYChart.Data<String, Number> data : series.getData()) {
                 Node node = data.getNode();
-                    if (data == selectedData) {
-                        // highlight the selected neighborhood bar
-                        node.setStyle("-fx-bar-fill: green; -fx-background-radius: 10;");
-                    } else {
-                        // style for other bars
-                        node.setStyle("-fx-bar-fill: lightgrey; -fx-background-radius: 10;");
-                    }
+                if (data == selectedData) {
+                    // highlight the selected neighborhood bar
+                    node.setStyle("-fx-bar-fill: green; -fx-background-radius: 10;");
+                } else {
+                    // style for other bars
+                    node.setStyle("-fx-bar-fill: lightgrey; -fx-background-radius: 10;");
                 }
-            });
+            }
+        });
         animateBars(series);
     }
 

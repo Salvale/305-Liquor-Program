@@ -3,7 +3,7 @@
 .table-view .column-header-background .filler {
     -fx-background-color: -fx-base;
     -fx-stroke: transparent;
-    -fx-size:50;
+    -fx-size: 50;
     -fx-alignment: center;
     -fx-text-alignment: center;
 }
@@ -22,8 +22,8 @@
 }
 
 .table-view {
-	-fx-border-color: black;
-	-fx-border-width: 1;
+    -fx-border-color: black;
+    -fx-border-width: 1;
     -fx-fixed-cell-size: 50;
 }
 
@@ -46,13 +46,13 @@
 }
 
 .label-cell {
-	-fx-alignment: center-left;
+    -fx-alignment: center-left;
     -fx-padding: 5;
 }
 
 .value-cell {
     -fx-alignment: center-right;
-	-fx-padding: 5;
+    -fx-padding: 5;
 }
 
 .bar-chart {
@@ -70,6 +70,6 @@
     -fx-stroke: transparent;
 }
 
-.root{
+.root {
     -fx-font-family: "Inter";
 }

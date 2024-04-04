@@ -1,4 +1,4 @@
-Name,Business Description,Category,Zoning,Address,Neighbourhood,Neighbourhood ID,Latitude,Longitude,Point
+Name,Business Description,Category,Zoning,DataParsing.Address,Neighbourhood,Neighbourhood ID,Latitude,Longitude,Point
 CROMDALE LIQUOR STORE,Alcohol Sales,Alcohol Sales (Consumption Off Premises),RA7 CB2,11723 - 82 STREET NW,PARKDALE,1160,53.56965444785372,-113.4663962,POINT (-113.466396197168 53.569654447854)
 G & R LIQUOR MART,,Alcohol Sales (Consumption Off Premises),CMU,9906 - 109 STREET NW,DOWNTOWN,1090,53.537570925020994,-113.5087635,POINT (-113.508763462947 53.537570925021)
 ACE LIQUOR DISCOUNTER AT SUMMERSIDE,Liquor Store,Alcohol Sales (Consumption Off Premises),CSC,1124 - 91 STREET SW,ELLERSLIE INDUSTRIAL,6214,53.42368025,-113.4755922,POINT (-113.475592152867 53.423680250415)
